@@ -85,9 +85,8 @@ impl Universe {
                     (Cell::Alive, 2) | (Cell::Alive, 3) => Cell::Alive,
                     (Cell::Alive, x) if x > 3 => Cell::Dead,
                     (Cell::Dead, 3) => Cell::Alive,
-                    // 🤔 this should not happen, but essentially we pass back
-                    // the cell from the tuple that we are matching against.
-                    (strange, _) => strange,
+                    // I was incorrect before, this is just all other cells
+                    (unchanged, _) => unchanged,
                 };
 
                 next[idx] = next_cell;
