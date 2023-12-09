@@ -1,6 +1,7 @@
 mod utils;
 
-use std::usize;
+use core::slice::SlicePattern;
+use std::{fmt, usize};
 
 use wasm_bindgen::prelude::*;
 
@@ -43,6 +44,31 @@ impl Universe {
 
 #[wasm_bindgen]
 impl Universe {
+    pub fn new() -> Universe {
+        let width = 64;
+        let height = 64;
+
+        let cells = (0..width * height)
+            .map(|i| {
+                if i % 2 == 0 || i % 7 == 0 {
+                    Cell::Alive
+                } else {
+                    Cell::Dead
+                }
+            })
+            .collect();
+
+        Universe {
+            width,
+            height,
+            cells,
+        }
+    }
+
+    pub fn render(&self) -> String {
+        self.to_string()
+    }
+
     pub fn tick(&mut self) {
         let mut next = self.cells.clone();
 
@@ -54,10 +80,13 @@ impl Universe {
 
                 let next_cell = match (cell, live_neighbours) {
                     (Cell::Alive, x) if x < 2 => Cell::Dead,
+                    // | in this case is used to distinguish multiple patterns.
+                    // It's not some kind of bitwise operator.
                     (Cell::Alive, 2) | (Cell::Alive, 3) => Cell::Alive,
                     (Cell::Alive, x) if x > 3 => Cell::Dead,
                     (Cell::Dead, 3) => Cell::Alive,
-                    // 🤔
+                    // 🤔 this should not happen, but essentially we pass back
+                    // the cell from the tuple that we are matching against.
                     (strange, _) => strange,
                 };
 
@@ -66,5 +95,19 @@ impl Universe {
         }
 
         self.cells = next;
+    }
+}
+
+impl fmt::Display for Universe {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        for line in self.cells.as_slice().chunks(self.width as usize) {
+            for &cell in line {
+                let symbol = if cell == Cell::Dead { '◻' } else { '◼' };
+                write!(f, "{}", symbol)?;
+            }
+            write!(f, "\n")?;
+        }
+
+        Ok(())
     }
 }
