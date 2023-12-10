@@ -1,6 +1,5 @@
 mod utils;
 
-use core::slice::SlicePattern;
 use std::{fmt, usize};
 
 use wasm_bindgen::prelude::*;
@@ -63,6 +62,18 @@ impl Universe {
             height,
             cells,
         }
+    }
+
+    pub fn height(&self) -> u32 {
+        self.height
+    }
+
+    pub fn width(&self) -> u32 {
+        self.width
+    }
+
+    pub fn cells(&self) -> *const Cell {
+        self.cells.as_ptr()
     }
 
     pub fn render(&self) -> String {
