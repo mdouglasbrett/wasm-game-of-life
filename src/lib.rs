@@ -120,6 +120,21 @@ impl Universe {
     }
 }
 
+impl Universe {
+    // Get cells from universe (both states, Dead and Alive)
+    pub fn get_cells(&self) -> &[Cell] {
+        &self.cells
+    }
+
+    // Set alive cells
+    pub fn set_cells(&mut self, cells: &[(u32, u32)]) {
+        for (row, col) in cells.iter().cloned() {
+            let idx = self.get_index(row, col);
+            self.cells[idx] = Cell::Alive;
+        }
+    }
+}
+
 impl fmt::Display for Universe {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for line in self.cells.as_slice().chunks(self.width as usize) {
