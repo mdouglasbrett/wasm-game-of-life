@@ -3,6 +3,7 @@ extern crate web_sys;
 
 mod utils;
 
+use core::panic;
 use std::{fmt, usize};
 
 use wasm_bindgen::prelude::*;
@@ -10,7 +11,7 @@ use wasm_bindgen::prelude::*;
 // Macro that provides a log!() wrapper around the client-side console logging
 macro_rules! log {
     ( $( $t:tt )* ) => {
-        web_sys::console::log_1(&format!( $( &t )* ).into());
+        web_sys::console::log_1(&format!( $( $t )* ).into());
     };
 }
 
@@ -55,6 +56,7 @@ impl Universe {
 impl Universe {
     pub fn new() -> Universe {
         utils::set_panic_hook();
+        //panic!("Boom");
         let width = 64;
         let height = 64;
 
@@ -121,6 +123,13 @@ impl Universe {
                     (unchanged, _) => unchanged,
                 };
 
+                //log!(
+                //    "Cell {:?} at (row, col) ({},{}), transitioning to {:?}",
+                //    cell,
+                //    row,
+                //    col,
+                //    next_cell
+                //);
                 next[idx] = next_cell;
             }
         }
