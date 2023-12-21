@@ -1,10 +1,18 @@
 extern crate js_sys;
+extern crate web_sys;
 
 mod utils;
 
 use std::{fmt, usize};
 
 use wasm_bindgen::prelude::*;
+
+// Macro that provides a log!() wrapper around the client-side console logging
+macro_rules! log {
+    ( $( $t:tt )* ) => {
+        web_sys::console::log_1(&format!( $( &t )* ).into());
+    };
+}
 
 #[wasm_bindgen]
 #[repr(u8)]
@@ -46,6 +54,7 @@ impl Universe {
 #[wasm_bindgen]
 impl Universe {
     pub fn new() -> Universe {
+        utils::set_panic_hook();
         let width = 64;
         let height = 64;
 
