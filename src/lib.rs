@@ -49,6 +49,18 @@ impl Cell {
     }
 }
 
+fn seed_cells(width: u32, height: u32) -> Vec<Cell> {
+    (0..width * height)
+        .map(|_| {
+            if js_sys::Math::random() < 0.2 {
+                Cell::Alive
+            } else {
+                Cell::Dead
+            }
+        })
+        .collect()
+}
+
 #[wasm_bindgen]
 pub struct Universe {
     width: u32,
@@ -86,15 +98,7 @@ impl Universe {
         let width = 64;
         let height = 64;
 
-        let cells = (0..width * height)
-            .map(|_| {
-                if js_sys::Math::random() < 0.2 {
-                    Cell::Alive
-                } else {
-                    Cell::Dead
-                }
-            })
-            .collect();
+        let cells = seed_cells(width, height);
 
         Universe {
             width,
@@ -130,7 +134,8 @@ impl Universe {
     }
 
     pub fn tick(&mut self) {
-        let _timer = Timer::new("Universe::tick");
+        // Turn off console logging...
+        // let _timer = Timer::new("Universe::tick");
         let mut next = self.cells.clone();
 
         for row in 0..self.height {
@@ -167,6 +172,42 @@ impl Universe {
         let idx = self.get_index(row, col);
         self.cells[idx].toggle();
     }
+    pub fn clear(&mut self) {
+        let mut next = self.cells.clone();
+
+        for row in 0..self.height {
+            for col in 0..self.width {
+                let idx = self.get_index(row, col);
+                //let cell = self.cells[idx];
+                //let live_neighbours = self.live_neighbour_count(row, col);
+
+                //let next_cell = match (cell, live_neighbours) {
+                //    (Cell::Alive, x) if x < 2 => Cell::Dead,
+                //    // | in this case is used to distinguish multiple patterns.
+                //    // It's not some kind of bitwise operator.
+                //    (Cell::Alive, 2) | (Cell::Alive, 3) => Cell::Alive,
+                //    (Cell::Alive, x) if x > 3 => Cell::Dead,
+                //    (Cell::Dead, 3) => Cell::Alive,
+                //    // I was incorrect before, this is just all other cells
+                //    (unchanged, _) => unchanged,
+                //};
+
+                //log!(
+                //    "Cell {:?} at (row, col) ({},{}), transitioning to {:?}",
+                //    cell,
+                //    row,
+                //    col,
+                //    next_cell
+                //);
+                next[idx] = Cell::Dead;
+            }
+        }
+
+        self.cells = next;
+    }
+    pub fn reset(&mut self) {
+        self.cells = seed_cells(self.width, self.height)
+    } 
 }
 
 impl Universe {
