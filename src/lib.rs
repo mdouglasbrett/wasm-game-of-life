@@ -4,7 +4,7 @@ extern crate web_sys;
 mod utils;
 
 use core::panic;
-use std::{fmt, usize};
+use std::{convert::TryInto, fmt, usize};
 
 use wasm_bindgen::prelude::*;
 
@@ -173,41 +173,13 @@ impl Universe {
         self.cells[idx].toggle();
     }
     pub fn clear(&mut self) {
-        let mut next = self.cells.clone();
-
-        for row in 0..self.height {
-            for col in 0..self.width {
-                let idx = self.get_index(row, col);
-                //let cell = self.cells[idx];
-                //let live_neighbours = self.live_neighbour_count(row, col);
-
-                //let next_cell = match (cell, live_neighbours) {
-                //    (Cell::Alive, x) if x < 2 => Cell::Dead,
-                //    // | in this case is used to distinguish multiple patterns.
-                //    // It's not some kind of bitwise operator.
-                //    (Cell::Alive, 2) | (Cell::Alive, 3) => Cell::Alive,
-                //    (Cell::Alive, x) if x > 3 => Cell::Dead,
-                //    (Cell::Dead, 3) => Cell::Alive,
-                //    // I was incorrect before, this is just all other cells
-                //    (unchanged, _) => unchanged,
-                //};
-
-                //log!(
-                //    "Cell {:?} at (row, col) ({},{}), transitioning to {:?}",
-                //    cell,
-                //    row,
-                //    col,
-                //    next_cell
-                //);
-                next[idx] = Cell::Dead;
-            }
-        }
+        let next: Vec<Cell> = vec![Cell::Dead; (self.width * self.height).try_into().unwrap()];
 
         self.cells = next;
     }
     pub fn reset(&mut self) {
         self.cells = seed_cells(self.width, self.height)
-    } 
+    }
 }
 
 impl Universe {
