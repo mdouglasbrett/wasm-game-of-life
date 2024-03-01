@@ -4,6 +4,7 @@ extern crate web_sys;
 mod utils;
 
 use core::panic;
+use serde::{Deserialize, Serialize};
 use std::{convert::TryInto, fmt, usize};
 
 use wasm_bindgen::prelude::*;
@@ -31,6 +32,7 @@ macro_rules! log {
         web_sys::console::log_1(&format!( $( $t )* ).into());
     };
 }
+
 
 #[wasm_bindgen]
 #[repr(u8)]
@@ -168,7 +170,21 @@ impl Universe {
 
         self.cells = next;
     }
-    pub fn toggle(&mut self, row: u32, col: u32) {
+    pub fn draw(&mut self, map: JsValue) {
+        // I did want to do something with a struct here,
+        // but couldn't get it to work over the wasm bridge.
+        // Something like:
+        // struct Positions(u32,u32);
+        // struct DrawingMap {
+        //   positions: Vec<Positions>
+        // }
+        // but I kept getting a bunch of recursive errors
+        let map: Vec<Vec<u32>> = serde_wasm_bindgen::from_value(map).unwrap();
+        for p in map.into_iter() {
+            self.toggle(p[0], p[1])
+        }
+    }
+    fn toggle(&mut self, row: u32, col: u32) {
         let idx = self.get_index(row, col);
         self.cells[idx].toggle();
     }
