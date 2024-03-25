@@ -46,14 +46,22 @@ macro_rules! log {
     };
 }
 
-fn seed_cells(size: usize) -> FixedBitSet {
+struct Clear;
+
+fn seed_cells(size: usize, clear: Option<Clear> ) -> FixedBitSet {
     let mut cells = FixedBitSet::with_capacity(size);
 
+
     for i in 0..size {
-        if js_sys::Math::random() < 0.2 {
-            cells.set(i, ALIVE_CELL);
-        } else {
-            cells.set(i, DEAD_CELL);
+        match clear {
+            Some(Clear) => cells.set(i, DEAD_CELL),
+            None => {
+                if js_sys::Math::random() < 0.2 {
+                    cells.set(i, ALIVE_CELL);
+                } else {
+                    cells.set(i, DEAD_CELL);
+                }
+            }
         }
     }
 
@@ -99,7 +107,7 @@ impl Universe {
         let height = 64;
 
         let size = (width * height) as usize;
-        let cells = seed_cells(size);
+        let cells = seed_cells(size, None);
 
         Universe {
             width,
@@ -108,33 +116,30 @@ impl Universe {
             size,
         }
     }
-
     pub fn height(&self) -> u32 {
         self.height
     }
-
     pub fn width(&self) -> u32 {
         self.width
     }
-
-    //pub fn set_width(&mut self, width: u32) {
-    //    self.width = width;
-    //    self.cells = (0..width * self.height).map(|_i| DEAD_CELL).collect();
-    //}
-
-    //pub fn set_height(&mut self, height: u32) {
-    //    self.height = height;
-    //    self.cells = (0..self.width * height).map(|_i| DEAD_CELL).collect();
-    //}
-
+    pub fn set_width(&mut self, width: u32) {
+        self.width = width;
+        let size = (width * self.height) as usize;
+        let cells = seed_cells(size, Some(Clear));
+        self.cells = cells;
+    }
+    pub fn set_height(&mut self, height: u32) {
+        self.height = height;
+        let size = (height * self.width) as usize;
+        let cells = seed_cells(size, Some(Clear));
+        self.cells = cells;
+    }
     pub fn cells(&self) -> *const usize {
         self.cells.as_slice().as_ptr()
     }
-
     pub fn render(&self) -> String {
         self.to_string()
     }
-
     pub fn tick(&mut self) {
         // Turn off console logging...
         // let _timer = Timer::new("Universe::tick");
@@ -155,7 +160,6 @@ impl Universe {
                         (ALIVE_CELL, 2) | (ALIVE_CELL, 3) => ALIVE_CELL,
                         (ALIVE_CELL, x) if x > 3 => DEAD_CELL,
                         (DEAD_CELL, 3) => ALIVE_CELL,
-                        // I was incorrect before, this is just all other cells
                         (unchanged, _) => unchanged,
                     },
                 );
@@ -191,16 +195,11 @@ impl Universe {
         self.cells.set(idx, toggle(self.cells[idx]));
     }
     pub fn clear(&mut self) {
-        let mut next: FixedBitSet = FixedBitSet::with_capacity(self.size);
-
-        for i in 0..self.size {
-            next.set(i, DEAD_CELL);
-        }
-
+        let next: FixedBitSet = seed_cells(self.size, Some(Clear));
         self.cells = next;
     }
     pub fn reset(&mut self) {
-        self.cells = seed_cells(self.size)
+        self.cells = seed_cells(self.size, None)
     }
 }
 
