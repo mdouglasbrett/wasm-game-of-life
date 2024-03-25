@@ -7,10 +7,20 @@ mod utils;
 use core::panic;
 //use serde::{Deserialize, Serialize};
 use fixedbitset::FixedBitSet;
-use js_sys::Boolean;
+//use js_sys::Boolean;
 use std::{convert::TryInto, fmt, usize};
 
 use wasm_bindgen::prelude::*;
+
+const DEAD_CELL: bool = false;
+const ALIVE_CELL: bool = true;
+
+pub fn toggle(cell: bool) -> bool {
+    match cell {
+        DEAD_CELL => ALIVE_CELL,
+        _ => DEAD_CELL,
+    }
+}
 
 pub struct Timer<'a> {
     name: &'a str,
@@ -34,33 +44,6 @@ macro_rules! log {
     ( $( $t:tt )* ) => {
         web_sys::console::log_1(&format!( $( $t )* ).into());
     };
-}
-
-//#[wasm_bindgen]
-//#[repr(u8)]
-//#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-//pub enum Cell {
-//    Dead = 0,
-//    Alive = 1,
-//}
-
-const DEAD_CELL: bool = false;
-const ALIVE_CELL: bool = true;
-
-//impl Cell {
-//    pub fn toggle(&mut self) {
-//        *self = match *self {
-//            DEAD_CELL => ALIVE_CELL,
-//            ALIVE_CELL => DEAD_CELL,
-//        }
-//    }
-//}
-
-pub fn toggle(cell: bool) -> bool {
-    match cell {
-        DEAD_CELL => ALIVE_CELL,
-        _ => DEAD_CELL,
-    }
 }
 
 fn seed_cells(size: usize) -> FixedBitSet {
@@ -145,7 +128,6 @@ impl Universe {
     //}
 
     pub fn cells(&self) -> *const usize {
-        //self.cells.as_ptr()
         self.cells.as_slice().as_ptr()
     }
 
@@ -164,16 +146,19 @@ impl Universe {
                 let cell = self.cells[idx];
                 let live_neighbours = self.live_neighbour_count(row, col);
 
-                let next_cell = match (cell, live_neighbours) {
-                    (ALIVE_CELL, x) if x < 2 => DEAD_CELL,
-                    // | in this case is used to distinguish multiple patterns.
-                    // It's not some kind of bitwise operator.
-                    (ALIVE_CELL, 2) | (ALIVE_CELL, 3) => ALIVE_CELL,
-                    (ALIVE_CELL, x) if x > 3 => DEAD_CELL,
-                    (DEAD_CELL, 3) => ALIVE_CELL,
-                    // I was incorrect before, this is just all other cells
-                    (unchanged, _) => unchanged,
-                };
+                next.set(
+                    idx,
+                    match (cell, live_neighbours) {
+                        (ALIVE_CELL, x) if x < 2 => DEAD_CELL,
+                        // | in this case is used to distinguish multiple patterns.
+                        // It's not some kind of bitwise operator.
+                        (ALIVE_CELL, 2) | (ALIVE_CELL, 3) => ALIVE_CELL,
+                        (ALIVE_CELL, x) if x > 3 => DEAD_CELL,
+                        (DEAD_CELL, 3) => ALIVE_CELL,
+                        // I was incorrect before, this is just all other cells
+                        (unchanged, _) => unchanged,
+                    },
+                );
 
                 //log!(
                 //    "Cell {:?} at (row, col) ({},{}), transitioning to {:?}",
@@ -182,7 +167,6 @@ impl Universe {
                 //    col,
                 //    next_cell
                 //);
-                next[idx] = next_cell;
             }
         }
 
