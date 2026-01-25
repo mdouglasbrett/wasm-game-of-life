@@ -1,3 +1,5 @@
+#![warn(clippy::style, clippy::complexity, clippy::perf, clippy::correctness)]
+
 extern crate fixedbitset;
 extern crate js_sys;
 extern crate web_sys;
@@ -5,10 +7,8 @@ extern crate web_sys;
 mod utils;
 
 use core::panic;
-//use serde::{Deserialize, Serialize};
 use fixedbitset::FixedBitSet;
-//use js_sys::Boolean;
-use std::{fmt, usize};
+use std::fmt;
 
 use wasm_bindgen::prelude::*;
 
@@ -39,6 +39,7 @@ impl<'a> Drop for Timer<'a> {
     }
 }
 
+// TODO: conditionally compile
 // Macro that provides a log!() wrapper around the client-side console logging
 macro_rules! log {
     ( $( $t:tt )* ) => {
@@ -102,18 +103,7 @@ impl Universe {
     pub fn new() -> Universe {
         utils::set_panic_hook();
         //panic!("Boom");
-        let width = 64;
-        let height = 64;
-
-        let size = (width * height) as usize;
-        let cells = seed_cells(size, None);
-
-        Universe {
-            width,
-            height,
-            cells,
-            size,
-        }
+        Self::default()
     }
     pub fn height(&self) -> u32 {
         self.height
@@ -163,6 +153,7 @@ impl Universe {
                     },
                 );
 
+                // TODO: conditionally compile this based on an env flag
                 //log!(
                 //    "Cell {:?} at (row, col) ({},{}), transitioning to {:?}",
                 //    cell,
@@ -217,6 +208,22 @@ impl Universe {
     }
 }
 
+impl Default for Universe {
+    fn default() -> Self {
+        let width = 64;
+        let height = 64;
+
+        let size = (width * height) as usize;
+        let cells = seed_cells(size, None);
+
+        Universe {
+            width,
+            height,
+            cells,
+            size,
+        }
+    }
+}
 impl fmt::Display for Universe {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for line in self.cells.as_slice().chunks(self.width as usize) {
@@ -226,9 +233,9 @@ impl fmt::Display for Universe {
                 } else {
                     '◼'
                 };
-                write!(f, "{}", symbol)?;
+                write!(f, "{symbol}")?;
             }
-            write!(f, "\n")?;
+            writeln!(f)?;
         }
 
         Ok(())
