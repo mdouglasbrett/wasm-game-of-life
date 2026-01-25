@@ -1,14 +1,21 @@
-import { Universe } from "wasm-game-of-life";
-import { memory } from "wasm-game-of-life/wasm_game_of_life_bg";
+/* 
+    * This relies on a lot of help from wasm-bindgen.
+    * TODO: is there a way we can do this at an even lower level, or
+    * will we have to re-implement too much, manually?
+    */
+import init, { Universe } from "./wasm_game_of_life.js";
 
 const CELL_SIZE = 5; // pixels
 const GRID_COLOR = "#CCCCCC";
 const DEAD_COLOR = "#FFFFFF";
 const ALIVE_COLOR = "#000000";
 
+const env = await init();
+
 const universe = Universe.new();
 const width = universe.width();
 const height = universe.height();
+const memory = env.memory;
 
 const canvas = document.getElementById("game-of-life-canvas");
 canvas.height = (CELL_SIZE + 1) * height + 1;
@@ -134,7 +141,7 @@ const drawGlider = (row, col) => {
     ]);
 };
 
-const fps = new class {
+class FPS {
     constructor() {
         this.fps = document.getElementById("fps");
         this.frames = [];
@@ -175,7 +182,7 @@ const fps = new class {
         <p>max of last 100 = ${Math.round(max)}</p>
         `.trim();
     }
-}();
+};
 
 canvas.addEventListener("click", (e) => {
     const boundingRect = canvas.getBoundingClientRect();
@@ -211,7 +218,9 @@ const isPaused = () => {
 };
 
 // TODO: controllable frame rate
+// TODO: consistent frame rate
 const renderLoop = () => {
+    const fps = new FPS();
     fps.render();
     //debugger;
     if (TPF === 1) {
