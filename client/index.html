@@ -1,13 +1,16 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en-GB">
 <head>
     <meta charset="utf-8">
+
     <title>WASM Game of Life</title>
     <style>
-* + * {
-box-sizing: border-box;
-}
+        <!-- TODO: critical css -->
+        *+*
+        {
+        box-sizing:
+        border-box;
+        }
     </style>
     <link rel="stylesheet" href="/index.css">
 </head>
@@ -16,20 +19,24 @@ box-sizing: border-box;
     <noscript>This page contains webassembly and javascript content, please enable javascript in your
         browser.</noscript>
     <main class="grid-wrapper">
-    <div class="controls">
-        <!-- Play/Pause labels will be controlled programmatically -->
-    <button id="play-pause">Pause</button>
-    <button id="clear">Clear</button>
-    <button id="restart">Restart</button>
-    <div>
-        <label for="ticks-per-frame">Ticks per frame (1-10)</label>
-    <input type="range" min="1" max="10" step="1" id="ticks-per-frame" />
-    </div>
-    </div>
-    <div id="fps"></div>
-    <canvas id="game-of-life-canvas"></canvas>
+        <div class="controls">
+            <!-- Play/Pause labels will be controlled programmatically -->
+            <button id="play-pause">Pause</button>
+            <button id="clear">Clear</button>
+            <button id="restart">Restart</button>
+            <div>
+                <label for="ticks-per-frame">Ticks per frame (1-10)</label>
+                <input type="range" min="1" max="10" step="1" value="1" id="ticks-per-frame" />
+            </div>
+        </div>
+        <div id="fps"></div>
+        <canvas id="game-of-life-canvas"></canvas>
     </main>
-    <script src="./bootstrap.js"></script>
+    <!-- There is no point trying to load in the wasm via a tag I believe as 
+        it is not able to use type 'module' yet according to mdn:
+        https://developer.mozilla.org/en-US/docs/WebAssembly/Guides/Loading_and_running#:~:text=WebAssembly%20is%20not%20yet%20integrated%20with%20%3Cscript%20type%3D%27module%27%3E%20or%20import%20statements%2C%20thus%20there%20is%20not%20a%20path%20to%20have%20the%20browser%20fetch%20modules%20for%20you%20using%20imports. -->
+    <script src="./wasm/wasm_game_of_life.js" type="module"></script>
+    <script src="./index.js" type="module"></script>
 </body>
 
 </html>

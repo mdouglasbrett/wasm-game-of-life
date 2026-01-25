@@ -3,7 +3,7 @@
     * TODO: is there a way we can do this at an even lower level, or
     * will we have to re-implement too much, manually?
     */
-import init, { Universe } from "./wasm_game_of_life.js";
+import init, { Universe } from "./wasm/wasm_game_of_life.js";
 
 const CELL_SIZE = 5; // pixels
 const GRID_COLOR = "#CCCCCC";
