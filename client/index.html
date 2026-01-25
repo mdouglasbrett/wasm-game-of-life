@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>WASM Game of Life</title>
+    <style>
+* + * {
+box-sizing: border-box;
+}
+    </style>
+    <link rel="stylesheet" href="/index.css">
+</head>
+
+<body>
+    <noscript>This page contains webassembly and javascript content, please enable javascript in your
+        browser.</noscript>
+    <main class="grid-wrapper">
+    <div class="controls">
+        <!-- Play/Pause labels will be controlled programmatically -->
+    <button id="play-pause">Pause</button>
+    <button id="clear">Clear</button>
+    <button id="restart">Restart</button>
+    <div>
+        <label for="ticks-per-frame">Ticks per frame (1-10)</label>
+    <input type="range" min="1" max="10" step="1" id="ticks-per-frame" />
+    </div>
+    </div>
+    <div id="fps"></div>
+    <canvas id="game-of-life-canvas"></canvas>
+    </main>
+    <script src="./bootstrap.js"></script>
+</body>
+
+</html>
