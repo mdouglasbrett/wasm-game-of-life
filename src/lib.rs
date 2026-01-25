@@ -8,7 +8,7 @@ use core::panic;
 //use serde::{Deserialize, Serialize};
 use fixedbitset::FixedBitSet;
 //use js_sys::Boolean;
-use std::{convert::TryInto, fmt, usize};
+use std::{fmt, usize};
 
 use wasm_bindgen::prelude::*;
 
@@ -48,9 +48,8 @@ macro_rules! log {
 
 struct Clear;
 
-fn seed_cells(size: usize, clear: Option<Clear> ) -> FixedBitSet {
+fn seed_cells(size: usize, clear: Option<Clear>) -> FixedBitSet {
     let mut cells = FixedBitSet::with_capacity(size);
-
 
     for i in 0..size {
         match clear {
